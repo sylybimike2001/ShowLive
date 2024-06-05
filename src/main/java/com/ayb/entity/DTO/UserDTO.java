@@ -1,4 +1,4 @@
-package com.ayb.entity;
+package com.ayb.entity.DTO;
 
 import lombok.Data;
 
