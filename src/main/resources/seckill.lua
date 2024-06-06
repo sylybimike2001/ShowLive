@@ -11,8 +11,8 @@ local ticketID = ARGV[1]
 local userID = ARGV[2]
 
 ---
-local stockKey = 'seckill:stock:' .. ticketID;
-local orderKey = 'seckill:order:' .. ticketID;
+local stockKey = 'ticket:stock:' .. ticketID;
+local orderKey = 'ticket:order:' .. ticketID;
 
 if (tonumber(redis.call('get',stockKey))<=0) then
     return 1
