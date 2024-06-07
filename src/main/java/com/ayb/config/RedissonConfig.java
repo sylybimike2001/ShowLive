@@ -7,12 +7,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RedissionConfig {
+public class RedissonConfig {
+
     @Bean
     public RedissonClient redissonClient(){
         Config config = new Config();
         //暂时没有redis密码
         config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+
         return Redisson.create(config);
     }
 }

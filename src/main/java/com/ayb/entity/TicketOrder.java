@@ -10,7 +10,8 @@ import java.util.List;
 @Data
 @TableName("tb_ticket_order")
 public class TicketOrder {
-    private Long id;
+    @TableField("order_id")
+    private Long orderId;
 
     @TableField("show_id")
     private Long showId;
@@ -18,8 +19,8 @@ public class TicketOrder {
     @TableField("pay_value")
     private Long payValue;
 
-    @TableField("single_price")
-    private Long singlePrice;
+    @TableField("level")
+    private Integer level;
 
     @TableField("amount")
     private Integer amount;

@@ -11,7 +11,7 @@ import java.util.List;
 public class TicketOrderDTO {
     private Long showId;
 
-    private Long singlePrice;
+    private Integer level;
 
     private Integer amount;
 
