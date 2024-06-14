@@ -27,6 +27,9 @@ public class Show {
     @TableField("star")
     private String star;
 
+    @TableField("type")
+    private String type;
+
     @TableField("show_time")
     private LocalDateTime showTime;
 

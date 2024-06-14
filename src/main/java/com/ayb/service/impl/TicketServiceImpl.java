@@ -40,7 +40,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, Ticket> impleme
             one = ticket;
             stock = ticket.getStock();
         }
-        stringRedisTemplate.opsForValue().set("ticket:stock:" + one.getId(), String.valueOf(stock));
+        stringRedisTemplate.opsForValue().set("ticket:stock:show:" + one.getShowId()+":level:"+one.getLevel(), String.valueOf(stock));
         return Result.ok();
     }
 }

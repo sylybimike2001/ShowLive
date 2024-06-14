@@ -6,13 +6,15 @@
 
 --- 参数
 --- 优惠券ID
-local ticketID = ARGV[1]
+local showID = ARGV[1]
 --- 用户ID
-local userID = ARGV[2]
+local level = ARGV[2]
+---
+local userID = ARGV[3]
 
 ---
-local stockKey = 'ticket:stock:' .. ticketID;
-local orderKey = 'ticket:order:' .. ticketID;
+local stockKey = 'ticket:stock:show' .. showID .. ':level:' .. level;
+local orderKey = 'ticket:order:' .. showID;
 
 if (tonumber(redis.call('get',stockKey))<=0) then
     return 1

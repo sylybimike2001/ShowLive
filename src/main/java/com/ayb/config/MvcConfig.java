@@ -25,7 +25,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/login",
                         "/show-type/list",
                         "/user/modify",
-                        "/ticket/seckill",
+//                        "/ticket/seckill",
                         "/show/add-show",
                         "/ticket/add-ticket"
                 ).order(1);

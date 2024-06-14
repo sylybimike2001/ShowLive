@@ -34,6 +34,9 @@ public class TicketOrder {
 
 
     @TableField(exist = false)
+    private Long userID;
+
+    @TableField(exist = false)
     private List<AudienceInfo> audienceInfo;
 
     /**

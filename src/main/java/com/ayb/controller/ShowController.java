@@ -16,4 +16,15 @@ public class ShowController {
     public Result addShow(@RequestBody Show show){
         return showService.addShow(show);
     }
+
+    /**
+     * 查询所有某种类型的演出
+     * @param type
+     * @return
+     */
+    @GetMapping("/list/{type}")
+    public Result queryShowsListByType(@PathVariable("type") Integer type) {
+        // 修改点赞数量
+        return showService.queryShowsListByType(type);
+    }
 }

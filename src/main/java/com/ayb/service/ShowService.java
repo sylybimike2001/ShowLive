@@ -9,4 +9,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ShowService extends IService<Show> {
     Result addShow(Show show);
+
+    Result queryShowsListByType(Integer type);
 }

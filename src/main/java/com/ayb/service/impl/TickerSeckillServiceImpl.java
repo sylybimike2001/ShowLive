@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.ayb.entity.AudienceInfo;
 import com.ayb.entity.DTO.Result;
 import com.ayb.entity.DTO.TicketOrderDTO;
+import com.ayb.entity.DTO.UserDTO;
 import com.ayb.entity.TicketOrder;
 import com.ayb.mapper.TicketOrderMapper;
 import com.ayb.service.AudienceInfoService;
@@ -11,8 +12,11 @@ import com.ayb.service.TicketSeckillService;
 import com.ayb.service.TicketService;
 import com.ayb.uitls.RedisIdWorker;
 import com.ayb.uitls.RegexUtils;
+import com.ayb.uitls.UserHolder;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -59,6 +63,8 @@ public class TickerSeckillServiceImpl extends ServiceImpl<TicketOrderMapper, Tic
 
     private BlockingQueue<TicketOrder> orderTasks = new ArrayBlockingQueue<>(1024*1024);
     static final ExecutorService SECKILL_ORDER_EXECUTOR = Executors.newSingleThreadExecutor();
+    @Autowired
+    private RedissonClient redissonClient;
 
     @PostConstruct
     private void init(){
@@ -81,8 +87,20 @@ public class TickerSeckillServiceImpl extends ServiceImpl<TicketOrderMapper, Tic
 
 
     public void ticketOrderHandler(TicketOrder ticketOrder) {
-        System.out.println("_______ticketOrderHandler Running---------------");
-        proxy.createTicketOrder(ticketOrder);
+        RLock lock = redissonClient.getLock("lock:" + ticketOrder.getUserID());
+
+        boolean isLock = lock.tryLock();
+        if (!isLock){
+            log.error("同一时间只允许一名用户下单");
+            return;
+        }
+        try {
+            proxy.createTicketOrder(ticketOrder);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
+        }
     }
 
 
@@ -93,6 +111,7 @@ public class TickerSeckillServiceImpl extends ServiceImpl<TicketOrderMapper, Tic
     @Transactional
     public void createTicketOrder(TicketOrder ticketOrder){
         Long orderId = ticketOrder.getOrderId();
+        Integer amount = ticketOrder.getAmount();
         List<AudienceInfo> audienceInfo = ticketOrder.getAudienceInfo();
         List<String> ids = new ArrayList<>();
         for (AudienceInfo info : audienceInfo) {
@@ -104,7 +123,7 @@ public class TickerSeckillServiceImpl extends ServiceImpl<TicketOrderMapper, Tic
             return;
         }
         //扣库存
-        boolean update = ticketService.update().setSql("stock = stock - 1")
+        boolean update = ticketService.update().setSql("stock = stock - " + amount)
                 .eq("show_id", ticketOrder.getShowId())
                 .eq("level", ticketOrder.getLevel())
                 .gt("stock",0).update();
@@ -118,7 +137,8 @@ public class TickerSeckillServiceImpl extends ServiceImpl<TicketOrderMapper, Tic
 
     @Override
     public Result seckill(TicketOrderDTO ticketOrderDTO) {
-        String ticketId = String.valueOf(ticketOrderDTO.getShowId());
+        UserDTO user = UserHolder.getUser();
+        String showID = String.valueOf(ticketOrderDTO.getShowId());
 
         //查询订单中用户是否为空
         List<AudienceInfo> audienceInfo = ticketOrderDTO.getAudienceInfo();
@@ -132,12 +152,16 @@ public class TickerSeckillServiceImpl extends ServiceImpl<TicketOrderMapper, Tic
             String idCard = info.getIdCard();
             if(RegexUtils.isIdCardInvalid(idCard)){
                 return Result.fail("用户:"+info.getName()+" 的身份证格式不正确");
+
             }
             ids.add(idCard);
         }
         //1.执行lua脚本，内部会在缓存中减少票数量，增加票购买用户id
+        String level = ticketOrderDTO.getLevel().toString();
+        String amount = String.valueOf(ids.size());
+        ticketOrderDTO.setAmount(ids.size());
         Long result = stringRedisTemplate.execute(SECKILL_SCRIPT, Collections.emptyList(),
-                ticketId, String.join(",", ids));
+                showID,level,amount,String.join(",", ids));
         if (result == null) {
             return Result.fail("未知异常");
         }
@@ -154,6 +178,8 @@ public class TickerSeckillServiceImpl extends ServiceImpl<TicketOrderMapper, Tic
         ticketOrder.setStatus(0);
         long ID = redisIdWorker.nextId("ticket:order:");
         ticketOrder.setOrderId(ID);
+        //多线程任务无法通过UserHolder拿到用户，因此要提前存入userID
+        ticketOrder.setUserID(user.getId());
         for (AudienceInfo info : audienceInfo) {
             info.setOrderId(ID);
         }

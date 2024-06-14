@@ -5,13 +5,17 @@
 ---
 --- 参数
 --- 优惠券ID
-local ticketID = ARGV[1]
+local showID = ARGV[1]
 --- 用户ID数组，以逗号分隔的字符串形式
-local userIDs = ARGV[2]
+local level = ARGV[2]
+---
+local amount = ARGV[3]
+---
+local userIDs = ARGV[4]
 
 ---
-local stockKey = 'ticket:stock:' .. ticketID
-local orderKey = 'ticket:order:' .. ticketID
+local stockKey = 'ticket:stock:show:' .. showID .. ':level:' .. level
+local orderKey = 'ticket:order:' .. showID
 
 --- 把传进来的以逗号分隔的身份证字符串转化为lua表类型
 local userIDList = {}
@@ -22,7 +26,7 @@ end
 --- 查询库存
 local stock = tonumber(redis.call('get', stockKey))
 --- 如果库存不足 返回1
-if stock <= 0 then
+if stock < tonumber(amount) then
     return 1
 end
 
