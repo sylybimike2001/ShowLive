@@ -39,7 +39,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private RedisTemplate redisTemplate;
 
     @Override
-    public Result sendCode(String phone) {
+    public Result sendPhoneCode(String phone) {
         //1.校验手机号是否合法
         boolean phoneInvalid = RegexUtils.isPhoneInvalid(phone);
         //1.1不合法 返回错误信息
@@ -51,6 +51,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //1.3将验证码储存到redis用于后续查验
         String key = USER_CODE_PREFIX+phone;
         stringRedisTemplate.opsForValue().set(key,code);
+        //1.4返回code
+        return Result.ok(code);
+    }
+
+    @Override
+    public Result sendMailCode(String mail) {
+        //1.校验手机号是否合法
+        boolean phoneInvalid = RegexUtils.isPhoneInvalid(mail);
+        //1.1不合法 返回错误信息
+        if (phoneInvalid){
+            return Result.fail("邮箱不合法");
+        }
+        //1.2合法 生成code
+        String code = RandomUtil.randomNumbers(6);
+        //1.3将验证码储存到redis用于后续查验
+        String key = USER_CODE_PREFIX+mail;
+        stringRedisTemplate.opsForValue().set(key,code);
+        stringRedisTemplate.opsForHash().put(key,mail,code);
+        Integer times = (Integer) stringRedisTemplate.opsForHash().get(key, "times");
+        if (times == null){
+            times = 1;
+        }
+        else if (times > 0 && times < 5){
+            times++;
+        }
+        stringRedisTemplate.opsForHash().put(key,"times",times);
+        stringRedisTemplate.opsForHash().put(key,"code",code);
+//        stringRedisTemplate.expire(key, 60, TimeUnit.SECONDS);
         //1.4返回code
         return Result.ok(code);
     }

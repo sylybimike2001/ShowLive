@@ -28,7 +28,7 @@ public class Show {
     private String star;
 
     @TableField("type")
-    private String type;
+    private Integer type;
 
     @TableField("show_time")
     private LocalDateTime showTime;
@@ -44,4 +44,16 @@ public class Show {
 
     @TableField("ticket_levels")
     private Integer ticketLevels;
+
+    @TableField("location")
+    private String location;
+
+    @TableField("x")
+    private Double x;
+
+    @TableField("y")
+    private Double y;
+
+    @TableField(exist = false)
+    private Double distance;
 }

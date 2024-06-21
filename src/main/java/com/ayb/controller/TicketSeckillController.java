@@ -16,6 +16,4 @@ public class TicketSeckillController {
     public Result SeckillTicket(@RequestBody TicketOrderDTO ticketOrderDTO) {
         return ticketSeckillService.seckill(ticketOrderDTO);
     }
-
-
 }

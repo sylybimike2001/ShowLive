@@ -18,9 +18,14 @@ public class UserController {
         return Result.ok("hello world");
     }
 
-    @PostMapping("/code")
-    public Result code(@RequestParam("phone") String phone){
-        return userService.sendCode(phone);
+    @PostMapping("/register/phone/code")
+    public Result sendPhoneCode(@RequestParam("phone") String phone){
+        return userService.sendPhoneCode(phone);
+    }
+
+    @PostMapping("/register/mail/code")
+    public Result sendMailCode(@RequestParam("mail") String mail){
+        return userService.sendMailCode(mail);
     }
 
     @PostMapping("/login")

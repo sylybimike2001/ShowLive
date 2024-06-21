@@ -18,13 +18,21 @@ public class ShowController {
     }
 
     /**
-     * 查询所有某种类型的演出
-     * @param type
-     * @return
+     * 
+     * @param type 查询类型
+     * @param page 页码
+     * @param size 每页显示的条目量
+     * @param sort 按照哪个字段排序
+     * @param order 升序或降序
+     * @return 查询结果
      */
-    @GetMapping("/list/{type}")
-    public Result queryShowsListByType(@PathVariable("type") Integer type) {
-        // 修改点赞数量
-        return showService.queryShowsListByType(type);
+    @GetMapping("/list")
+    public Result queryShowsListByType(
+            @RequestParam(value = "type", defaultValue = "1") Integer type,
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "sort", defaultValue = "name") String sort,
+            @RequestParam(value = "order", defaultValue = "asc") String order) {
+        return showService.queryShowsListByType(type,page,size,sort,order);
     }
 }

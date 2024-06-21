@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserService extends IService<User> {
 
-    public Result sendCode(String phone);
+    public Result sendPhoneCode(String phone);
+
+    public Result sendMailCode(String mail);
 
     Result login(LoginInfo loginInfo);
 

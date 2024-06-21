@@ -3,11 +3,8 @@ package com.ayb.service.impl;
 import cn.hutool.json.JSONUtil;
 import com.ayb.entity.DTO.Result;
 import com.ayb.entity.Show;
-import com.ayb.entity.ShowType;
 import com.ayb.mapper.ShowMapper;
-import com.ayb.mapper.ShowTypeMapper;
 import com.ayb.service.ShowService;
-import com.ayb.service.ShowTypeService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,10 +13,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static com.ayb.uitls.UserConstants.SHOW_TYPE;
 
 @Service
 public class ShowServiceImpl extends ServiceImpl<ShowMapper, Show> implements ShowService {
@@ -41,12 +34,25 @@ public class ShowServiceImpl extends ServiceImpl<ShowMapper, Show> implements Sh
     }
 
     @Override
-    public Result queryShowsListByType(Integer type) {
-        Page<Show> showPage = new Page<>(1,10);
+    public Result queryShowsListByType(Integer type, Integer page, Integer size, String sort, String order) {
+        Page<Show> showPage = new Page<>(page,size);
         QueryWrapper<Show> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("type", type);
-
-        Page<Show> page = showMapper.selectPage(showPage, queryWrapper);
-        return Result.ok(page);
+        if (!type.equals(10)) {
+            if (order.equals("asc")) {
+                queryWrapper.eq("type", type).orderByAsc(sort);
+            }else {
+                queryWrapper.eq("type", type).orderByDesc(sort);
+            }
+        }
+        else{
+            if (order.equals("asc")) {
+                queryWrapper.orderByAsc(sort);
+            }else {
+                queryWrapper.orderByDesc(sort);
+            }
+        }
+        Page<Show> res = showMapper.selectPage(showPage, queryWrapper);
+        return Result.ok(res);
     }
+
 }
