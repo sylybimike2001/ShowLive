@@ -41,6 +41,14 @@ public class RegexUtils {
         return mismatch(code, RegexPatterns.ID_CARD_REGEX);
     }
 
+    public static boolean isMailInvalid(String code){
+        return mismatch(code, RegexPatterns.MAIL_REGEX);
+    }
+
+    public static boolean isPhoneOrMailInvalid(String code){
+        return mismatch(code, RegexPatterns.MAIL_REGEX) && mismatch(code, RegexPatterns.PHONE_REGEX);
+    }
+
     // 校验是否不符合正则格式
     private static boolean mismatch(String str, String regex){
         if (StrUtil.isBlank(str)) {

@@ -23,4 +23,5 @@ public class User {
     private String icon = "";
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private String mail;
 }

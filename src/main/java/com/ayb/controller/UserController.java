@@ -30,7 +30,7 @@ public class UserController {
 
     @PostMapping("/login")
     public Result login(@RequestBody LoginInfo loginInfo){
-        return userService.login(loginInfo);
+        return userService.login(loginInfo,2);
     }
 
     @PostMapping("/modify")

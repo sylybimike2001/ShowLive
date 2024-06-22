@@ -14,7 +14,13 @@ public interface UserService extends IService<User> {
 
     public Result sendMailCode(String mail);
 
-    Result login(LoginInfo loginInfo);
+    /**
+     *
+     * @param loginInfo 前端传过来的登录信息
+     * @param mode mode=1->电话登录;mode=2->邮箱登录
+     * @return 验证码
+     */
+    Result login(LoginInfo loginInfo,int mode);
 
     Result modify(UserMod user);
 }
